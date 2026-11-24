@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><meta name="viewport" content="width=device-width, initial-scale=1"><title>A short set of questions</title></head>
+<body>
+<style>
+  :root { --font-sans: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; --font-mono: ui-monospace, Menlo, Consolas, monospace;
+    --background: #ffffff; --foreground: #1a1a1a; --muted-foreground: #5f6368; --card: #ffffff; --card-foreground: #1a1a1a; --border: #cfd3d8;
+    --primary: #1d4ed8; --primary-foreground: #ffffff; --radius: 10px; --warning-surface: #fff6dd; --code-background: #f4f5f7; --soft: #f4f5f7; }
+  @media (prefers-color-scheme: dark) { :root { --background: #111315; --foreground: #ececec; --muted-foreground: #a3a8ae; --card: #1a1d20; --card-foreground: #ececec;
+    --border: #3a3f45; --primary: #3b82f6; --primary-foreground: #ffffff; --warning-surface: #3a2f12; --code-background: #1a1d20; --soft: #1a1d20; } }
+  html, body { background: var(--background); margin: 0; }
+  body { padding: 16px 14px 40px; -webkit-text-size-adjust: 100%; }
+  #app { font-family: var(--font-sans); color: var(--foreground); line-height: 1.45; max-width: 680px; margin: 0 auto; }
+  #app * { box-sizing: border-box; }
+  .top { font-size: 13px; color: var(--muted-foreground); margin: 2px 0 6px; display: flex; justify-content: space-between; gap: 8px; }
+  h2 { font-size: 20px; margin: 0 0 6px; font-weight: 650; }
+  p.intro { margin: 0 0 12px; color: var(--muted-foreground); font-size: 15px; }
+  p.text { margin: 0 0 12px; font-size: 16px; }
+  .q { background: var(--card); color: var(--card-foreground); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 12px; margin: 0 0 10px; }
+  .ask { font-size: 16px; font-weight: 500; margin: 0 0 6px; }
+  .ask b { font-weight: 750; }
+  .note { font-size: 13px; color: var(--muted-foreground); margin: 0 0 8px; }
+  .opts { margin-top: 10px; }
+  .opt { display: block; width: 100%; text-align: left; font: inherit; font-size: 15px; color: inherit; background: transparent; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px); padding: 11px 12px; margin: 0 0 7px; cursor: pointer; }
+  .opt.sel, .w.sel { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+  .or { font-size: 12px; color: var(--muted-foreground); margin: 6px 0 5px; }
+  .ways { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+  .w { font: inherit; font-size: 12.5px; line-height: 1.2; color: var(--muted-foreground); background: transparent; border: 1px dashed var(--border); border-radius: calc(var(--radius) - 2px); padding: 8px 6px; min-height: 38px; cursor: pointer; }
+  .sub { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+  .box { background: var(--soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; margin: 0 0 12px; }
+  .box p { margin: 0 0 6px; } .box p:last-child { margin: 0; }
+  .nav { display: flex; gap: 10px; margin: 14px 0 6px; }
+  .btn { flex: 1; font: inherit; font-size: 16px; font-weight: 600; padding: 13px; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: inherit; cursor: pointer; }
+  .btn.primary { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  textarea { width: 100%; min-height: 130px; font-family: var(--font-mono); font-size: 13px; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--code-background, transparent); color: inherit; }
+  .warn { border: 1px solid var(--border); background: var(--warning-surface, transparent); border-radius: var(--radius); padding: 12px 16px; font-size: 14px; margin: 0 0 12px; }
+  ul.plain { margin: 0 0 12px; padding-left: 20px; font-size: 15px; }
+</style>
+<div id="app"></div>
+<script>
+const D = {"items": [{"id": "T1", "theme": "Temper", "ask": "I get angry…", "opts": [["1", "very easily"], ["2", "fairly easily"], ["3", "not very easily"], ["4", "hardly ever"]], "sense": "+"}, {"id": "W1", "theme": "Worry", "ask": "I worry about things…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "D1", "theme": "Getting things done", "ask": "When I start something, I…", "opts": [["1", "nearly always finish it"], ["2", "usually finish it"], ["3", "often leave it unfinished"], ["4", "usually leave it unfinished"]], "sense": "+"}, {"id": "O1", "theme": "Order", "ask": "My things are…", "opts": [["1", "always in their place"], ["2", "mostly in their place"], ["3", "often left around"], ["4", "usually left around"]], "sense": "+"}, {"id": "Q1", "theme": "Thoughts and imagination", "ask": "I get lost in my own thoughts…", "opts": [["1", "very often"], ["2", "fairly often"], ["3", "not very often"], ["4", "hardly ever"]], "sense": "+"}, {"id": "T2", "theme": "Temper", "ask": "My mood changes…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "W2", "theme": "Worry", "ask": "I have doubts about things…", "opts": [["1", "very often"], ["2", "fairly often"], ["3", "not very often"], ["4", "hardly ever"]], "sense": "+"}, {"id": "D2", "theme": "Getting things done", "ask": "I put off things I need to do…", "opts": [["1", "very often"], ["2", "fairly often"], ["3", "not very often"], ["4", "hardly ever"]], "sense": "-"}, {"id": "O2", "theme": "Order", "ask": "Mess around me bothers me…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "Q2", "theme": "Thoughts and imagination", "ask": "I enjoy thinking about big questions, like what life is for or how the world works…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "T3", "theme": "Temper", "ask": "Small things annoy me…", "opts": [["1", "very often"], ["2", "fairly often"], ["3", "not very often"], ["4", "hardly ever"]], "sense": "+"}, {"id": "W3", "theme": "Worry", "ask": "I get discouraged…", "opts": [["1", "very easily"], ["2", "fairly easily"], ["3", "not very easily"], ["4", "hardly ever"]], "sense": "+"}, {"id": "D3", "theme": "Getting things done", "ask": "While I am working on something, my attention wanders…", "opts": [["1", "very easily"], ["2", "fairly easily"], ["3", "not very easily"], ["4", "hardly ever"]], "sense": "-"}, {"id": "O3", "theme": "Order", "ask": "I keep to a routine…", "opts": [["1", "nearly every day"], ["2", "most days"], ["3", "some days"], ["4", "hardly ever"]], "sense": "+"}, {"id": "Q3", "theme": "Thoughts and imagination", "ask": "Music affects my feelings…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "T4", "theme": "Temper", "ask": "When things go wrong, I stay calm…", "opts": [["1", "nearly always"], ["2", "usually"], ["3", "sometimes"], ["4", "rarely"]], "sense": "-"}, {"id": "W4", "theme": "Worry", "ask": "I get embarrassed…", "opts": [["1", "very easily"], ["2", "fairly easily"], ["3", "not very easily"], ["4", "hardly ever"]], "sense": "+"}, {"id": "D4", "theme": "Getting things done", "ask": "I carry out the plans I make…", "opts": [["1", "nearly always"], ["2", "usually"], ["3", "sometimes"], ["4", "rarely"]], "sense": "+"}, {"id": "O4", "theme": "Order", "ask": "Getting every detail right matters to me…", "opts": [["1", "a lot"], ["2", "quite a bit"], ["3", "a little"], ["4", "hardly at all"]], "sense": "+"}, {"id": "Q4", "theme": "Thoughts and imagination", "ask": "I notice beauty in ordinary things…", "opts": [["1", "very often"], ["2", "fairly often"], ["3", "not very often"], ["4", "hardly ever"]], "sense": "+"}], "cards": [{"id": "A1", "kind": "do", "ask": "When I disagree with {someone close to me} about something that matters to me, I usually…", "opts": [["a", "tell them in words"], ["b", "let it show without saying it"], ["c", "keep it to myself"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me.", "follow": {"ask": "I usually tell them…", "opts": [["a", "then and there"], ["b", "later"]]}}, {"id": "A2", "kind": "do", "ask": "When I disagree with {someone in charge of me} about something that matters to me, I usually…", "opts": [["a", "tell them in words"], ["b", "let it show without saying it"], ["c", "keep it to myself"]], "note": "A boss, a teacher, an official. Not someone close to me.", "follow": {"ask": "I usually tell them…", "opts": [["a", "then and there"], ["b", "later"]]}}, {"id": "A3", "kind": "do", "ask": "When I disagree with {someone I hardly know} about something that matters to me, I usually…", "opts": [["a", "tell them in words"], ["b", "let it show without saying it"], ["c", "keep it to myself"]], "follow": {"ask": "I usually tell them…", "opts": [["a", "then and there"], ["b", "later"]]}}, {"id": "B1", "kind": "do", "ask": "When I need help with something and could ask {someone close to me}, I usually…", "opts": [["a", "ask as soon as I see I need it"], ["b", "ask after trying on my own for a good while"], ["c", "don't ask"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me."}, {"id": "B2", "kind": "do", "ask": "When I need help with something and could ask {people at work or study who are not close to me}, I usually…", "opts": [["a", "ask as soon as I see I need it"], ["b", "ask after trying on my own for a good while"], ["c", "don't ask"]]}, {"id": "B3", "kind": "do", "ask": "When {someone close to me} asks for help and I am busy, the first thing I usually do is…", "opts": [["a", "stop and help"], ["b", "say I'll help later"], ["c", "say I can't"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me."}, {"id": "B4", "kind": "do", "ask": "When {someone at work or study who is not close to me} asks for help and I am busy, the first thing I usually do is…", "opts": [["a", "stop and help"], ["b", "say I'll help later"], ["c", "say I can't"]]}, {"id": "C1", "kind": "do", "ask": "When I am upset about something, in front of {someone close to me} I usually…", "opts": [["a", "show it"], ["b", "show a little"], ["c", "keep it in"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me."}, {"id": "C2", "kind": "do", "ask": "When I am upset about something, in front of {people at work or study who are not close to me} I usually…", "opts": [["a", "show it"], ["b", "show a little"], ["c", "keep it in"]]}, {"id": "C3", "kind": "do", "ask": "When I am very pleased about something, in front of {someone close to me} I usually…", "opts": [["a", "show it"], ["b", "show a little"], ["c", "keep it in"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me."}, {"id": "C4", "kind": "do", "ask": "When I am very pleased about something, in front of {people at work or study who are not close to me} I usually…", "opts": [["a", "show it"], ["b", "show a little"], ["c", "keep it in"]]}, {"id": "E1", "kind": "do", "ask": "When someone I care about is upset, the first thing I usually do is…", "opts": [["a", "try to fix the problem"], ["b", "listen and stay with them"], ["c", "give them space"], ["d", "try to cheer them up"]]}, {"id": "E2", "kind": "want", "ask": "When I am upset, the first thing I usually want from others is…", "opts": [["a", "help fixing the problem"], ["b", "someone to listen and stay"], ["c", "to be given space"], ["d", "to be cheered up"]]}, {"id": "I1", "kind": "want", "ask": "After {a whole day spent among people}, I most want to be…", "opts": [["a", "alone"], ["b", "with one or two people"], ["c", "with a group"]]}, {"id": "I2", "kind": "want", "ask": "After {a whole day spent alone}, I most want to be…", "opts": [["a", "alone"], ["b", "with one or two people"], ["c", "with a group"]]}, {"id": "F1", "kind": "feel", "ask": "When I am praised {in front of other people}, I mostly feel…", "opts": [["a", "pleased"], ["b", "uneasy"], ["c", "both"], ["d", "nothing much"]]}, {"id": "F2", "kind": "feel", "ask": "When I am praised {in private}, I mostly feel…", "opts": [["a", "pleased"], ["b", "uneasy"], ["c", "both"], ["d", "nothing much"]]}, {"id": "F3", "kind": "long", "ask": "When I am corrected {in front of other people}, in a way I think is fair, it usually stays on my mind…", "opts": [["a", "hardly at all"], ["b", "for the rest of the day"], ["c", "for days"]]}, {"id": "F4", "kind": "long", "ask": "When I am corrected {in private}, in a way I think is fair, it usually stays on my mind…", "opts": [["a", "hardly at all"], ["b", "for the rest of the day"], ["c", "for days"]]}, {"id": "F5", "kind": "long", "ask": "A mistake of mine that other people noticed usually stays on my mind…", "opts": [["a", "hardly at all"], ["b", "for the rest of the day"], ["c", "for days"]]}, {"id": "G1", "kind": "long", "ask": "With a big decision, I usually take…", "opts": [["a", "a day or less"], ["b", "some days"], ["c", "weeks or longer"]]}, {"id": "G3", "kind": "do", "ask": "Before a big decision, I usually talk it over with…", "opts": [["a", "no one"], ["b", "one person"], ["c", "several people"]]}, {"id": "G4", "kind": "long", "ask": "Once I have decided something big, I usually…", "opts": [["a", "don't go back over it"], ["b", "go back over it for a while"], ["c", "go back over it for a long time"]]}, {"id": "H1", "kind": "do", "ask": "On {a free day}, I usually decide what to do…", "opts": [["a", "the day before or earlier"], ["b", "on the day"], ["c", "as the day goes"]]}, {"id": "H2", "kind": "do", "ask": "On {a working or study day}, where it is up to me, I usually decide what to do…", "opts": [["a", "the day before or earlier"], ["b", "on the day"], ["c", "as the day goes"]]}, {"id": "J1", "kind": "do", "ask": "When something needs to be done and no one is in charge, {among friends}, the first thing I usually do is…", "opts": [["a", "start organising it"], ["b", "wait for someone else to start, then join in"], ["c", "stay out of it"]]}, {"id": "J2", "kind": "do", "ask": "When something needs to be done and no one is in charge, {among people at work or study who are not close to me}, the first thing I usually do is…", "opts": [["a", "start organising it"], ["b", "wait for someone else to start, then join in"], ["c", "stay out of it"]]}, {"id": "K1", "kind": "do", "ask": "When {someone close to me} asks me for something I would rather not do, I usually…", "opts": [["a", "say no"], ["b", "say yes"], ["c", "offer something less, or later"]], "note": "A partner, a close friend, a brother or sister. Not someone in charge of me."}, {"id": "K2", "kind": "do", "ask": "When {someone in charge of me} asks me for something I would rather not do, I usually…", "opts": [["a", "say no"], ["b", "say yes"], ["c", "offer something less, or later"]], "note": "A boss, a teacher, an official. Not someone close to me."}, {"id": "K3", "kind": "do", "ask": "When {someone I hardly know} asks me for something I would rather not do, I usually…", "opts": [["a", "say no"], ["b", "say yes"], ["c", "offer something less, or later"]]}], "groups": [{"title": "Disagreeing", "ids": ["A1", "A2", "A3"]}, {"title": "Help", "ids": ["B1", "B2", "B3", "B4"]}, {"title": "Showing what I feel", "intro": "“Show” means in my face, my voice or my words.", "ids": ["C1", "C2", "C3", "C4"]}, {"title": "Comfort and company", "ids": ["E1", "E2", "I1", "I2"]}, {"title": "Praise, correction and mistakes", "ids": ["F1", "F2", "F3", "F4", "F5"]}, {"title": "Deciding and planning", "ids": ["G1", "G3", "G4", "H1", "H2"]}, {"title": "When no one is in charge, and when I am asked", "ids": ["J1", "J2", "K1", "K2", "K3"]}], "start": [{"id": "AG", "ask": "Your age band", "opts": [["a", "Under 30"], ["b", "30 to 44"], ["c", "45 to 59"], ["d", "60 or over"]]}, {"id": "SR", "ask": "Have you done personality tests, or spent much time thinking about what you're like?", "opts": [["a", "A lot"], ["b", "Some"], ["c", "Hardly at all"]]}], "end": [{"id": "EZ", "ask": "How were these questions to answer?", "opts": [["a", "Easy"], ["b", "Mostly easy"], ["c", "Some were hard"], ["d", "Hard"]]}, {"id": "EP", "ask": "Which part was easier to answer?", "opts": [["a", "Part 1 (finish the sentence)"], ["b", "Part 2 (different settings)"], ["c", "About the same"]]}], "lens": {"pairs": [["A1", "A2"], ["K1", "K2"], ["A1", "A3"], ["A2", "A3"], ["K1", "K3"], ["K2", "K3"]], "setting": {"A1": "someone close to you", "A2": "someone in charge of you", "A3": "someone you hardly know", "K1": "someone close to you", "K2": "someone in charge of you", "K3": "someone you hardly know"}, "fam": {"A": {"lead": "You said that when you disagree with {S1} about something that matters to you, {P1}, and that with {S2}, {P2}.", "phrase": {"a": "you usually tell them in words", "b": "you usually let it show without saying it", "c": "you usually keep it to yourself"}}, "K": {"lead": "You said that when {S1} asks you for something you would rather not do, {P1}, and that when it is {S2}, {P2}.", "phrase": {"a": "you usually say no", "b": "you usually say yes", "c": "you usually offer something less, or later"}}}, "text": ["Carl Jung, a Swiss psychologist, observed that people are often not quite the same in every setting. “A definite milieu demands a definite attitude,” he wrote. (A milieu is a setting: home, work, a group of people.) He called the face a person shows in a role the persona. He thought having one was unavoidable, and partly one's own. He did not say which face is the real one. What he warned about was a person coming to believe they are nothing but the face they show.", "This is his way of looking at it. Your two answers alone do not show a persona or anything hidden."], "ask": "If you would like to look at them that way: {how much does each of these feel like you?}", "opts": [["a", "Very much"], ["b", "Somewhat"], ["c", "Not much"], ["n", "I'm not sure"]]}, "ways1": [["v", "It depends too much to say"], ["n", "I'm not sure"]], "ways2": [["v", "It varies too much to say"], ["n", "I'm not sure"], ["x", "This doesn't come up for me"], ["o", "None of these fits"]], "welcome": ["It takes about 8 minutes. The questions are short. Answer how things usually are for you, not how you would like them to be.", "There are no right or wrong answers. Go with your first sense of each one. Under each question there are other choices in case none of the main answers suits you, and you can leave any question blank.", "Your answers become a code of letters and numbers with no name in it. An AI research assistant reads the code and writes a short description for you to react to.", "You can stop at any time."], "part2": ["Think of how things usually go for you these days.", "Some questions come back with a different kind of person or place. Your answers can be the same each time or different. Both are fine."], "who": ["{Someone close to me:} a partner, a close friend, a brother or sister. Not someone in charge of me.", "{Someone in charge of me:} a boss, a teacher, an official. Not someone close to me.", "{People at work or study:} the ones I am not close to."], "readers": ["4", "5", "6"]};
+const DEBUG = /*DEBUG*/null;
+const KEY = "short-questions-3";
+const fresh = () => ({ who: null, a: {}, s: {}, m: {}, t: {}, lens: { pair: null, opt: null, r: {} }, page: "start" });
+let st = fresh();
+try { const x = JSON.parse(localStorage.getItem(KEY) || "null"); if (x && x.m && x.s && x.lens && typeof x.page === "string") st = x; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
+const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+const CARD = {}; for (const q of D.cards) CARD[q.id] = q;
+const SUBST = { a: 1, b: 1, c: 1, d: 1 };
+
+function askNode(text) {
+  const p = el("p", "ask");
+  text.split(/[{}]/).forEach((seg, i) => { if (seg) p.appendChild(el(i % 2 ? "b" : "span", null, seg)); });
+  return p;
+}
+function choice(c, opts, ways, get, set) {
+  const box = el("div", "opts");
+  for (const [k, text] of opts) { const b = el("button", "opt" + (get() === k ? " sel" : ""), text);
+    b.onclick = () => { set(get() === k ? null : k); update(); }; box.appendChild(b); }
+  c.appendChild(box);
+  if (ways) {
+    c.appendChild(el("div", "or", "Or, if none of those suits:"));
+    const row = el("div", "ways");
+    for (const [k, text] of ways) { const b = el("button", "w" + (get() === k ? " sel" : ""), text);
+      b.onclick = () => { set(get() === k ? null : k); update(); }; row.appendChild(b); }
+    c.appendChild(row);
+  }
+}
+const setIn = (o, id) => v => { if (v == null) delete o[id]; else o[id] = v; };
+function single(q) { const c = el("div", "q"); c.appendChild(askNode(q.ask)); choice(c, q.opts, null, () => st.a[q.id], setIn(st.a, q.id)); return c; }
+function item(q) { const c = el("div", "q"); c.appendChild(askNode(q.ask)); choice(c, q.opts, D.ways1, () => st.s[q.id], setIn(st.s, q.id)); return c; }
+function card(q) {
+  const c = el("div", "q"); c.appendChild(askNode(q.ask));
+  if (q.note) c.appendChild(el("p", "note", q.note));
+  choice(c, q.opts, D.ways2, () => st.m[q.id], setIn(st.m, q.id));
+  if (q.follow && st.m[q.id] === "a") {
+    const s = el("div", "sub"); s.appendChild(askNode(q.follow.ask));
+    choice(s, q.follow.opts, null, () => st.t[q.id], setIn(st.t, q.id)); c.appendChild(s);
+  }
+  return c;
+}
+function lensPair() {
+  for (const [x, y] of D.lens.pairs) { const a = st.m[x], b = st.m[y]; if (SUBST[a] && SUBST[b] && a !== b) return [x, y]; }
+  return null;
+}
+function pages() {
+  const p = ["start", "s0", "s1"];
+  D.groups.forEach((g, i) => p.push("g" + i));
+  if (lensPair()) p.push("lens");
+  p.push("end", "done");
+  return p;
+}
+function code() {
+  const ch = v => v || "-";
+  const parts = ["OS3", "R=" + (st.who || "?")];
+  for (const q of D.start) parts.push(q.id + "=" + (st.a[q.id] || "?"));
+  parts.push("S=" + D.items.map(q => ch(st.s[q.id])).join(""));
+  parts.push("M=" + D.cards.map(q => ch(st.m[q.id])).join(""));
+  parts.push("T=" + D.cards.filter(q => q.follow).map(q => st.m[q.id] === "a" ? ch(st.t[q.id]) : "-").join(""));
+  parts.push("LF=" + ch(st.lens.pair), "LO=" + ch(st.lens.opt), "L=" + (st.lens.opt === "y" ? ch(st.lens.r[0]) + ch(st.lens.r[1]) : "--"));
+  for (const q of D.end) parts.push(q.id + "=" + (st.a[q.id] || "?"));
+  return parts.join(" ");
+}
+function go(name) { st.page = name; update(true); }
+function nav(kids, nextLabel) {
+  const P = pages(), i = P.indexOf(st.page), n = el("div", "nav");
+  if (i > 0) { const b = el("button", "btn", "Back"); b.onclick = () => go(P[i - 1]); n.appendChild(b); }
+  const x = el("button", "btn primary", nextLabel || "Next"); x.onclick = () => go(P[i + 1]); n.appendChild(x);
+  kids.push(n);
+}
+function lensPage(kids, lp) {
+  const L = D.lens, f = L.fam[lp[0][0]];
+  const S = id => L.setting[id], P = id => f.phrase[st.m[id]];
+  kids.push(el("h2", null, "One optional extra"));
+  kids.push(el("p", "text", "This part is optional. A psychologist, Carl Jung, had a way of looking at something you answered. Would you like to see it?"));
+  const c = el("div", "q");
+  choice(c, [["y", "Yes, show me"], ["n", "No, thanks"]], null, () => st.lens.opt, v => { st.lens.opt = v; });
+  kids.push(c);
+  if (st.lens.opt !== "y") return;
+  kids.push(el("p", "text", f.lead.replace("{S1}", S(lp[0])).replace("{P1}", P(lp[0])).replace("{S2}", S(lp[1])).replace("{P2}", P(lp[1]))));
+  for (const t of L.text) kids.push(el("p", "text", t));
+  kids.push(askNode(L.ask));
+  lp.forEach((id, i) => {
+    const q = el("div", "q"), s = S(id);
+    q.appendChild(askNode("{" + s[0].toUpperCase() + s.slice(1) + ":} " + P(id)));
+    choice(q, L.opts, null, () => st.lens.r[i], setIn(st.lens.r, i)); kids.push(q);
+  });
+}
+function update(scroll) {
+  const lp = lensPair(), lk = lp ? lp.join("") : null;
+  if (st.lens.pair !== lk) st.lens = { pair: lk, opt: null, r: {} };
+  let P = pages(); if (P.indexOf(st.page) < 0) st.page = "end";
+  save();
+  const app = document.getElementById("app"), kids = [], p = st.page, i = P.indexOf(p), last = P.length - 2;
+  const top = el("div", "top"); top.appendChild(el("span", null, p === "start" ? "Start" : p === "done" ? "Finished" : "Page " + i + " of " + last)); top.appendChild(el("span", null, "Nothing is sent from this page.")); kids.push(top);
+  if (p === "start") {
+    kids.push(el("h2", null, "A short set of questions about you"));
+    const ul = el("ul", "plain");
+    D.welcome.forEach(t => ul.appendChild(el("li", null, t)));
+    kids.push(ul);
+    const w = el("div", "q"); w.appendChild(el("p", "ask", "Which reader are you?"));
+    choice(w, D.readers.map(k => [k, "Reader " + k]), null, () => st.who, v => { st.who = v; });
+    kids.push(w);
+    for (const q of D.start) kids.push(single(q));
+    nav(kids, "Begin");
+  } else if (p === "s0" || p === "s1") {
+    kids.push(el("h2", null, "Part 1 of 2"));
+    kids.push(el("p", "intro", "Finish each sentence with the answer that fits you best."));
+    const k = p === "s0" ? 0 : 1, half = Math.ceil(D.items.length / 2);
+    for (const q of D.items.slice(k * half, (k + 1) * half)) kids.push(item(q));
+    nav(kids);
+  } else if (p[0] === "g") {
+    const g = D.groups[+p.slice(1)];
+    if (p === "g0") {
+      kids.push(el("h2", null, "Part 2 of 2: the same thing in different settings"));
+      for (const t of D.part2) kids.push(el("p", "text", t));
+      const b = el("div", "box"); for (const t of D.who) b.appendChild(askNode(t)); kids.push(b);
+    }
+    kids.push(el("h2", null, g.title));
+    if (g.intro) kids.push(el("p", "intro", g.intro));
+    for (const id of g.ids) kids.push(card(CARD[id]));
+    nav(kids);
+  } else if (p === "lens") {
+    lensPage(kids, lp); nav(kids);
+  } else if (p === "end") {
+    kids.push(el("h2", null, "Last two"));
+    for (const q of D.end) kids.push(single(q));
+    nav(kids, "Finish");
+  } else {
+    kids.push(el("h2", null, "Done. Thank you."));
+    const blank = D.items.filter(q => !st.s[q.id]).length + D.cards.filter(q => !st.m[q.id]).length;
+    if (blank) kids.push(el("div", "warn", blank + " question" + (blank > 1 ? "s were" : " was") + " left blank. That is fine. You can also go back."));
+    kids.push(el("p", "intro", "Copy this code and send it back to the person who gave you this link."));
+    const ta = el("textarea"); ta.readOnly = true; ta.value = code(); ta.onfocus = () => ta.select(); kids.push(ta);
+    const n = el("div", "nav");
+    const back = el("button", "btn", "Back"); back.onclick = () => go("end"); n.appendChild(back);
+    const cp = el("button", "btn primary", "Copy code");
+    cp.onclick = async () => { let ok = false; try { await navigator.clipboard.writeText(ta.value); ok = true; } catch (e) { try { ta.focus(); ta.select(); ok = document.execCommand("copy"); } catch (e2) {} }
+      cp.textContent = ok ? "Copied" : "Select the text above and copy it"; };
+    n.appendChild(cp); kids.push(n);
+    const again = el("button", "btn", "Clear everything and start for the next person"); again.style.width = "100%"; let armed = false;
+    again.onclick = () => { if (!armed) { armed = true; again.textContent = "Tap again to clear these answers (copy the code first)"; return; }
+      st = fresh(); update(true); };
+    kids.push(again);
+  }
+  app.replaceChildren(...kids);
+  if (scroll) { try { window.scrollTo(0, 0); app.scrollIntoView(); } catch (e) {} }
+}
+if (DEBUG) { st = fresh(); Object.assign(st, DEBUG); }
+update();
+</script>
+</body>
+</html>
